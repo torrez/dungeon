@@ -121,7 +121,6 @@
             
     function drawPlayer(){
         canvasContext.fillStyle = 'white';
-        //canvasContext.fillRect(currentCell.x + cellSize/2 - ps/2, currentCell.y + cellSize/2 - ps/2, pd, pd);
         canvasContext.fillRect(currentCell.x + cellSize/2 - pd/2, currentCell.y + cellSize/2 - pd/2, pd, pd);
     }
 
