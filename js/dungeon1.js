@@ -113,6 +113,12 @@
                 cells[i][j].draw(canvasContext);
             }
         }
+
+		//Draw success square
+        canvasContext.fillStyle = 'black';
+		canvasContext.font = "9px Helvetica";
+		canvasContext.fillText("FINISH", cells[0][14].x + 7, cells[0][14].y + 25);
+	
     }
             
     function drawPlayer(){
@@ -190,7 +196,7 @@
 
     function moveGame(){
         if (currentCell == cells[0][14]){
-	    showSubstack();
+			showSubstack();
         }
     }
 
