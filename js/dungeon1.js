@@ -102,7 +102,7 @@
     }
 
     function drawBackground(){
-        canvasContext.fillStyle = 'black';
+        canvasContext.fillStyle = 'pink';
         canvasContext.fillRect(0,0, canvas.width, canvas.height);
     }
 
@@ -233,40 +233,44 @@
 
         this.draw = function(ctx) {
             ctx.fillStyle = 'pink';
-            ctx.fillRect(this.x, this.y, cellSize, cellSize);
+            ctx.fillRect(this.x + wallThickness, this.y + wallThickness, cellSize - wallThickness * 2, cellSize - wallThickness * 2);
 
             //north
-            ctx.fillStyle = 'green';
             if (this.canNorth){
                 ctx.fillStyle = 'pink';
-            }
-            ctx.fillRect(this.x, this.y, cellSize, wallThickness);
+	    	ctx.fillRect(this.x + 10, this.y, cellSize - 20, wallThickness);
+            }else{
+            	ctx.fillStyle = 'green';
+	    	ctx.fillRect(this.x, this.y, cellSize, wallThickness);
+	    }
 
             //west
-            ctx.fillStyle = 'white';
             if (this.canWest){
                 ctx.fillStyle = 'pink';
-            }
-            ctx.fillRect(this.x, this.y, wallThickness, cellSize);
+	    	ctx.fillRect(this.x, this.y + 10, wallThickness, cellSize - 20);
+            }else{
+            	ctx.fillStyle = 'white';
+	    	ctx.fillRect(this.x, this.y, wallThickness, cellSize);
+	    }
             
-            //draw all four walls
             //east
-            ctx.fillStyle = 'teal';
             if (this.canEast){
                 ctx.fillStyle = 'pink';
-            }
-            ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
+	    	ctx.fillRect(this.x + cellSize - wallThickness, this.y + 10, wallThickness, cellSize - 20);
+            }else{
+	    	ctx.fillStyle = 'teal';
+	    	ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
+	    }
 
 
             //south
-            ctx.fillStyle = 'gold';
             if (this.canSouth){
                 ctx.fillStyle = 'pink';
-            }
-            ctx.fillRect(this.x, this.y + cellSize - wallThickness, cellSize, wallThickness);
-
-            
-            
+	    	ctx.fillRect(this.x + 10, this.y + cellSize - wallThickness, cellSize - 20, wallThickness);
+            }else{
+	    	ctx.fillStyle = 'gold';
+	    	ctx.fillRect(this.x, this.y + cellSize - wallThickness, cellSize, wallThickness);
+	    }
         }
 
         this.link = function(cell){
