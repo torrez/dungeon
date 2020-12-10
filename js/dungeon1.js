@@ -56,16 +56,9 @@ function createMap(){
         }
     }
     
-    cells[19][14].link(cells[19][13]);
-    cells[19][13].link(cells[19][14]);
-
-
     currentCell = cells[19][14];
 
-
-    console.log("CALLED");
     binaryTree();
-    
 
     for (i=0;i<columns;i++){
         for(j=0;j<rows;j++){
@@ -76,22 +69,22 @@ function createMap(){
 
 function keyPress(key){
         switch(key.which){
-                case 37:
-                case 97: //a
-                        movePlayerWest();
-                        break;
-                case 38:	
-                case 119: //w
-                        movePlayerNorth();
-                        break;
-                case 40:
-                case 115: //s
-                        movePlayerSouth();
-                        break;
-                case 39:
-                case 100: //d
-                        movePlayerEast();
-                        break;
+		case 37:
+		case 97: //a
+			movePlayerWest();
+			break;
+		case 38:	
+		case 119: //w
+			movePlayerNorth();
+			break;
+		case 40:
+		case 115: //s
+			movePlayerSouth();
+			break;
+		case 39:
+		case 100: //d
+			movePlayerEast();
+			break;
         }
         moveGame();
         drawEverything();
@@ -179,22 +172,19 @@ function movePlayerEast(){
     if (!canMoveToCell(currentCell, 'east')){
         return false;
     }
-    //currentCell = Object.assign(currentCell, currentCell.east);
-    currentCell = currentCell.east;//Object.assign(currentCell, currentCell.east);
+    currentCell = currentCell.east;
 }
 function movePlayerNorth(){
     if (!canMoveToCell(currentCell, 'north')){
         return false;
     }
-    //currrentCell = Object.assign(currentCell, currentCell.north);
-    currentCell = currentCell.north;//Object.assign(currentCell, currentCell.north);
+    currentCell = currentCell.north;
 }
 function movePlayerSouth(){
     if (!canMoveToCell(currentCell, 'south')){
         return false;
     }
-    //currentCell = Object.assign(currentCell, currentCell.south);
-    currentCell = currentCell.south;// Object.assign(currentCell, currentCell.south);
+    currentCell = currentCell.south;
 }
 
 function moveGame(){
