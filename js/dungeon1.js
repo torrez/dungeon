@@ -1,6 +1,6 @@
 var canvas;
 var canvasContext;
-var pd = 20;
+var pd = 10;
 var ps = 20;
 var walls = [];
 var cellSize = 40;
@@ -116,7 +116,7 @@ function drawMap(){
         
 function drawPlayer(){
     canvasContext.fillStyle = 'white';
-    canvasContext.fillRect(currentCell.x + pd, currentCell.y + pd, pd/2, pd/2);
+    canvasContext.fillRect(currentCell.x + cellSize/2 - ps/2, currentCell.y + cellSize/2 - ps/2, pd, pd);
 }
 
 //
@@ -232,6 +232,19 @@ function gridCell(x, y){
         ctx.fillRect(this.x, this.y, cellSize, cellSize);
 
         //draw all four walls
+        //east
+        ctx.fillStyle = 'teal';
+        if (this.canEast){
+            ctx.fillStyle = 'pink';
+        }
+        ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
+
+        //north
+        ctx.fillStyle = 'green';
+        if (this.canNorth){
+            ctx.fillStyle = 'pink';
+        }
+        ctx.fillRect(this.x, this.y, cellSize, wallThickness);
 
         //south
         ctx.fillStyle = 'gold';
@@ -248,19 +261,7 @@ function gridCell(x, y){
         }
         ctx.fillRect(this.x, this.y, wallThickness, cellSize);
         
-        //north
-        ctx.fillStyle = 'green';
-        if (this.canNorth){
-            ctx.fillStyle = 'pink';
-        }
-        ctx.fillRect(this.x, this.y, cellSize, wallThickness);
         
-        //east
-        ctx.fillStyle = 'teal';
-        if (this.canEast){
-            ctx.fillStyle = 'pink';
-        }
-        ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
     }
 
     this.link = function(cell){
