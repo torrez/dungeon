@@ -2,7 +2,6 @@
     var canvasContext;
     var pd = 10;
     var ps = 20;
-    var walls = [];
     var cellSize = 40;
     var cells = [];
     var wallThickness = 5;
@@ -25,13 +24,10 @@
         columns = Math.floor(canvas.width / cellSize);
         rows = Math.floor(canvas.height / cellSize);
 
-        var i = 0;
-        var j = 0;
-
-        for (i=0;i<columns;i++){
+        for (var i=0;i<columns;i++){
             var row = [];
             gx = i * cellSize;
-            for(j=0;j<rows;j++){
+            for(var j=0;j<rows;j++){
                 gy = j * cellSize;
                 cell = new gridCell(gx, gy);
                 row.push(cell);
@@ -69,6 +65,9 @@
     }
 
     function keyPress(key){
+		if (hasWon){
+			return;
+		}
         switch(key.which){
             case 37:
             case 97: //a
@@ -108,8 +107,8 @@
 
     function drawMap(){
         //Draw each cell
-        for (i=0;i<cells.length;i++){
-            for(j=0;j<cells[i].length;j++){
+        for (var i=0;i<cells.length;i++){
+            for(var j=0;j<cells[i].length;j++){
                 cells[i][j].draw(canvasContext);
             }
         }
@@ -117,7 +116,7 @@
 		//Draw success square
         canvasContext.fillStyle = 'black';
 		canvasContext.font = "9px Helvetica";
-		canvasContext.fillText("FINISH", cells[0][14].x + 7, cells[0][14].y + 25);
+		canvasContext.fillText("END", cells[0][14].x + 10, cells[0][14].y + 25);
 	
     }
             
@@ -197,6 +196,7 @@
     function moveGame(){
         if (currentCell == cells[0][14]){
 			showSubstack();
+			hasWon = true;
         }
     }
 
@@ -244,47 +244,43 @@
             //north
             if (this.canNorth){
                 ctx.fillStyle = 'pink';
-	    	ctx.fillRect(this.x + 10, this.y, cellSize - 20, wallThickness);
+				ctx.fillRect(this.x + 10, this.y, cellSize - 20, wallThickness);
             }else{
             	ctx.fillStyle = 'green';
-	    	ctx.fillRect(this.x, this.y, cellSize, wallThickness);
-	    }
+	    		ctx.fillRect(this.x, this.y, cellSize, wallThickness);
+	    	}
 
             //west
             if (this.canWest){
                 ctx.fillStyle = 'pink';
-	    	ctx.fillRect(this.x, this.y + 10, wallThickness, cellSize - 20);
-            }else{
-            	ctx.fillStyle = 'white';
-	    	ctx.fillRect(this.x, this.y, wallThickness, cellSize);
-	    }
+				ctx.fillRect(this.x, this.y + 10, wallThickness, cellSize - 20);
+			}else{
+				ctx.fillStyle = 'white';
+				ctx.fillRect(this.x, this.y, wallThickness, cellSize);
+	    	}
             
             //east
             if (this.canEast){
                 ctx.fillStyle = 'pink';
-	    	ctx.fillRect(this.x + cellSize - wallThickness, this.y + 10, wallThickness, cellSize - 20);
+				ctx.fillRect(this.x + cellSize - wallThickness, this.y + 10, wallThickness, cellSize - 20);
             }else{
-	    	ctx.fillStyle = 'teal';
-	    	ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
-	    }
+				ctx.fillStyle = 'teal';
+				ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
+	    	}
 
 
             //south
-            if (this.canSouth){
-                ctx.fillStyle = 'pink';
-	    	ctx.fillRect(this.x + 10, this.y + cellSize - wallThickness, cellSize - 20, wallThickness);
-            }else{
-	    	ctx.fillStyle = 'gold';
-	    	ctx.fillRect(this.x, this.y + cellSize - wallThickness, cellSize, wallThickness);
-	    }
-        }
+			if (this.canSouth){
+				ctx.fillStyle = 'pink';
+				ctx.fillRect(this.x + 10, this.y + cellSize - wallThickness, cellSize - 20, wallThickness);
+			}else{
+				ctx.fillStyle = 'white';
+				ctx.fillRect(this.x, this.y + cellSize - wallThickness, cellSize, wallThickness);
+			}
+		}
 
         this.link = function(cell){
             this.links.push(cell);
-        }
-
-        this.unlink = function(cell, bidi=true){
-            
         }
     }
 
@@ -331,7 +327,6 @@
         return x >= min && x <= max;
     }
 
-
     function containsObject(obj, list) {
         if (list.length == 0){
             return false;
@@ -353,3 +348,5 @@
         var success = document.getElementById("subscribe");
         success.style.display = "block";
     }
+
+	//THANK YOU FOR READING
