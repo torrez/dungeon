@@ -1,11 +1,30 @@
+    /*
+     * This one was fun because I had a chance to rewrite everything and improve things
+     * a bit. I also had a chance to do a much more interesting maze algorithm called Prim's
+     * Alrgorithm.
+     *
+     * The first time I implemented it I had a bug where it was biased toward selecting only
+     * north/south paths, so the maze looked like a very confusing parking lot or some kind
+     * of demented game of tennis.
+     *
+     * Because of that I started with teal for the background and then 
+     * 
+     * Also since I am literally learning JavaScript as I do this, I discovered the set()
+     * function which solved a bunch of problems I was having in the first iteration of this
+     * game and let me get rid of some utility functions that set() takes care of.
+     *
+     */
     var canvas;
     var canvasContext;
     var cells = [];
     var cellSize = 40;
     var columns, rows = 0;
     var currentCell = {};
-    var playerSize = 5;
-    var wallThickness = 5;
+    var playerSize = 15;
+    var playerColor = 'gold';
+    var wallThickness = 2;
+    var mazeColor = 'teal';
+    var mazeColorList = ['teal', 'purple', 'blue', 'black'];
 
     window.onload = function(){
         canvas = document.getElementById('game');
@@ -18,7 +37,6 @@
 
         createMaze();
         drawEverything();
-
     }
 
 
@@ -38,21 +56,21 @@
         }
 
         this.draw = function(ctx){
-            ctx.fillStyle = 'teal';
+            ctx.fillStyle = mazeColor;
             ctx.fillRect(this.x, this.y, cellSize, cellSize);
 
             //north
             if (this.links.has(this.north)){
-                ctx.fillStyle = 'pink';
-				ctx.fillRect(this.x + 10, this.y, cellSize - 20, wallThickness);
+                ctx.fillStyle = mazeColor;
+				ctx.fillRect(this.x + wallThickness, this.y, cellSize - wallThickness * 2, wallThickness);
             }else{
-            	ctx.fillStyle = 'green';
+            	ctx.fillStyle = 'white';
 	    		ctx.fillRect(this.x, this.y, cellSize, wallThickness);
 	    	}
 
             //west
             if (this.links.has(this.west)){
-                ctx.fillStyle = 'pink';
+                ctx.fillStyle = mazeColor;
 				ctx.fillRect(this.x, this.y + 10, wallThickness, cellSize - 20);
 			}else{
 				ctx.fillStyle = 'white';
@@ -61,18 +79,18 @@
             
             //east
             if (this.links.has(this.east)){
-                ctx.fillStyle = 'pink';
-				ctx.fillRect(this.x + cellSize - wallThickness, this.y + 10, wallThickness, cellSize - 20);
+                ctx.fillStyle = mazeColor;
+				ctx.fillRect(this.x + cellSize - wallThickness, this.y + wallThickness, wallThickness, cellSize - wallThickness*2);
             }else{
-				ctx.fillStyle = 'teal';
+				ctx.fillStyle = 'white';
 				ctx.fillRect(this.x + cellSize - wallThickness, this.y, wallThickness, cellSize);
 	    	}
 
 
             //south
 			if (this.links.has(this.south)){
-				ctx.fillStyle = 'pink';
-				ctx.fillRect(this.x + 10, this.y + cellSize - wallThickness, cellSize - 20, wallThickness);
+				ctx.fillStyle = mazeColor;
+				ctx.fillRect(this.x + wallThickness, this.y + cellSize - wallThickness, cellSize - wallThickness*2, wallThickness);
 			}else{
 				ctx.fillStyle = 'white';
 				ctx.fillRect(this.x, this.y + cellSize - wallThickness, cellSize, wallThickness);
@@ -81,6 +99,17 @@
 
         this.link = function(cell){
             this.links.add(cell);
+        }
+
+        this.neighbors = function(){
+            var dirs = ['north', 'south', 'east', 'west'];
+            var neighbs = [];
+            for (var i=0;i<4;i++){
+                if (this[dirs[i]] !== null){
+                    neighbs.push(this[dirs[i]]);
+                }
+            }
+            return neighbs;
         }
     }
 
@@ -117,34 +146,64 @@
         //place player
         currentCell = cells[0][0];
 
-        binaryTree();
+        primsAlgo();
     }
 
-    function binaryTree(){
-        var i = 0;
-        var j = 0;
-        var NORTH = 0;
-        var EAST = 1;
-        for(i=0;i<cells.length;i++){
-            for(j=0;j<cells[i].length;j++){
-                vcell = cells[i][j];
-                if (vcell.north === null && vcell.east !== null){
-                    carvePath(vcell, 'east');
-                }else if (vcell.north !== null && vcell.east == null){
-                    carvePath(vcell, 'north');
-                } else if (vcell.north === null && vcell.east === null){
-                    //do nothing
-                } else {
-                    flip = Math.floor(Math.random() * 2);
-                    
-                    if(flip == NORTH){
-                        carvePath(vcell, 'north');
-                    }else if(flip == EAST){
-                        carvePath(vcell, 'east');
-                    }
+    function primsAlgo(){
+        //Choose a random cell as the starting point, and add it to the visited set.
+        var current = randomCell();
+        var visitedCells = new Set();
+        var frontierCells = new Set();
+
+        do {
+            //Add all unvisited cells that are adjacent to the current cell to the frontier set.
+            visitedCells.add(current);
+            var neighbors = current.neighbors();
+            for(var i=0;i<neighbors.length;i++){
+                if(!visitedCells.has(neighbors[i])){
+                    frontierCells.add(neighbors[i]);
                 }
             }
+
+            //Choose a cell randomly from the frontier set and make it the current cell,
+            //removing it from the frontier set and adding it to the visited set.
+            let items = Array.from(frontierCells);
+            current = items[Math.floor(Math.random() * items.length)];
+            frontierCells.delete(current);
+
+            //Remove the wall between the current cell and a random adjacent
+            //cell that belongs to the visited set.
+            neighbor = randomVisitedNeighbor(current, visitedCells);
+            if (neighbor){
+                current.link(neighbor);
+                neighbor.link(current);
+            }else{
+                console.log("ran out of neighbors");
+            }
+        } while (frontierCells.size > 0);
+    }
+
+    function randomVisitedNeighbor(current, vCells){
+        var neighbors = current.neighbors();
+        var visitedNeighbors = [];
+
+        for(var i=0;i<neighbors.length;i++){
+            if(vCells.has(neighbors[i])){
+                visitedNeighbors.push(neighbors[i]);
+            }
         }
+
+        if(visitedNeighbors.length == 0){
+            return false;
+        }else{
+            return visitedNeighbors[Math.floor(Math.random() * visitedNeighbors.length)]
+        }
+    }
+
+    function randomCell(){
+        var random_row = Math.floor(Math.random() * rows);
+        var random_column = Math.floor(Math.random() * columns);
+        return cells[random_column][random_row];
     }
 
     function carvePath(vcell, direction){
@@ -166,8 +225,10 @@
     }
 
     function drawPlayer(){
-        canvasContext.fillStyle = 'white';
-        canvasContext.fillRect(currentCell.x, currentCell.y, playerSize, playerSize);
+        canvasContext.fillStyle = playerColor;
+        centerOfCell = cellSize / 2;
+        centerOfPlayer = playerSize / 2;
+        canvasContext.fillRect(currentCell.x + centerOfCell - centerOfPlayer, currentCell.y + centerOfCell - centerOfPlayer, playerSize, playerSize);
     }
 
     function keyPress(key){
@@ -215,8 +276,8 @@
         return false;
     }
 
-
-
     function between(x, min, max) {
         return x >= min && x <= max;
     }
+
+    //THANKS FOR READING!
