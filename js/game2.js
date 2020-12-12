@@ -1,18 +1,22 @@
     /*
      * This one was fun because I had a chance to rewrite everything and improve things
      * a bit. I also had a chance to do a much more interesting maze algorithm called Prim's
-     * Alrgorithm.
+     * Algorithm[1][2].
      *
-     * The first time I implemented it I had a bug where it was biased toward selecting only
+     * The first time I implemented it there was a bug where it was biased toward selecting only
      * north/south paths, so the maze looked like a very confusing parking lot or some kind
      * of demented game of tennis.
      *
-     * Because of that I started with teal for the background and then 
+     * Because of that I started with teal for the background and then started thinking about
+     * how when I was a kid games would use rich colors like purple and blue so I added those
+     * too.
      * 
      * Also since I am literally learning JavaScript as I do this, I discovered the set()
-     * function which solved a bunch of problems I was having in the first iteration of this
-     * game and let me get rid of some utility functions that set() takes care of.
+     * function which solved a bunch of problems I was having in the first maze I made 
+     * and it let me get rid of some utility functions that set() takes care of.
      *
+     * [1] https://en.wikipedia.org/wiki/Prim's_algorithm
+     * [2] https://medium.com/@cantwell.tom/prims-algorithm-as-a-maze-in-javascript-aec7415ad2cd 
      */
     var canvas;
     var canvasContext;
@@ -53,12 +57,6 @@
         this.east = null;
         this.west = null;
         this.links = new Set();
-
-        this.configure = function(){
-            if (this.links.size == 0){
-                return;
-            }
-        }
 
         this.draw = function(ctx){
             ctx.fillStyle = mazeColor;
@@ -294,9 +292,11 @@
         if (hasWon){
             return false;
         }
+
         if (!canMoveToCell(currentCell, direction)){
             return false;
         }
+
         currentCell = currentCell[direction];
 
         if (currentCell == rightTopCorner && stage == 1){
