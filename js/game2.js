@@ -25,6 +25,11 @@
     var wallThickness = 2;
     var mazeColor = 'teal';
     var mazeColorList = ['teal', 'purple', 'blue', 'black'];
+    var rightTopCorner;
+    var rightBottomCorner;
+    var leftBottomCorner;
+    var stage = 1;
+    var hasWon = false;
 
     window.onload = function(){
         canvas = document.getElementById('game');
@@ -146,10 +151,13 @@
         //place player
         currentCell = cells[0][0];
 
+        rightTopCorner = cells[cells.length - 1][0];
+        rightBottomCorner = cells[cells.length - 1][cells[0].length - 1];
+        leftBottomCorner = cells[0][cells[0].length - 1];
         primsAlgo();
     }
 
-    function primsAlgo(){
+    async function primsAlgo(){
         //Choose a random cell as the starting point, and add it to the visited set.
         var current = randomCell();
         var visitedCells = new Set();
@@ -169,6 +177,12 @@
             //removing it from the frontier set and adding it to the visited set.
             let items = Array.from(frontierCells);
             current = items[Math.floor(Math.random() * items.length)];
+
+            //You know, for fun
+            current.draw(canvasContext);
+            await new Promise(r => setTimeout(r, 1)); //I guess? Yuck.
+            drawEverything();
+
             frontierCells.delete(current);
 
             //Remove the wall between the current cell and a random adjacent
@@ -213,6 +227,7 @@
 
     function drawEverything(){
         drawCells();
+        drawGoals();
         drawPlayer();
     }
 
@@ -229,6 +244,24 @@
         centerOfCell = cellSize / 2;
         centerOfPlayer = playerSize / 2;
         canvasContext.fillRect(currentCell.x + centerOfCell - centerOfPlayer, currentCell.y + centerOfCell - centerOfPlayer, playerSize, playerSize);
+    }
+
+    function drawGoals(){
+        canvasContext.fillStyle = 'white';
+        canvasContext.font = '12px Helvetica';
+        canvasContext.fillText("1", cells[0][0].x + cellSize/2 - 1, cells[0][0].y + cellSize/2 + 1);
+
+        canvasContext.fillStyle = 'white';
+        canvasContext.font = '12px Helvetica';
+        canvasContext.fillText("2", rightTopCorner.x + cellSize/2 - 1, rightTopCorner.y + cellSize/2 + 1);
+
+        canvasContext.fillStyle = 'white';
+        canvasContext.font = '12px Helvetica';
+        canvasContext.fillText("3", rightBottomCorner.x + cellSize/2 - 1, rightBottomCorner.y + cellSize/2 + 1);
+
+        canvasContext.fillStyle = 'white';
+        canvasContext.font = '12px Helvetica';
+        canvasContext.fillText("end", leftBottomCorner.x + cellSize/2 - 8, leftBottomCorner.y + cellSize/2 + 1);
     }
 
     function keyPress(key){
@@ -258,10 +291,27 @@
     }
 
     function movePlayer(direction){
+        if (hasWon){
+            return false;
+        }
         if (!canMoveToCell(currentCell, direction)){
             return false;
         }
         currentCell = currentCell[direction];
+
+        if (currentCell == rightTopCorner && stage == 1){
+            mazeColor = mazeColorList[1];
+            stage = 2;
+        } else if(currentCell == rightBottomCorner && stage == 2){
+            mazeColor = mazeColorList[2];
+            stage = 3;
+        } else if(currentCell == leftBottomCorner && stage == 3){
+            mazeColor = mazeColorList[3];
+            stage = 4;
+            hasWon = true;
+            var success = document.getElementById("subscribe");
+            success.style.display = "block";
+        }
     }
 
     function canMoveToCell(from, direction){
