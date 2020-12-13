@@ -15,6 +15,9 @@
         #controls {
             float:right;
         }
+        .dir {
+            touch-action:manipulation;
+        }
     </style>
     <script src="js/game2.js"></script>
     </head>
@@ -25,10 +28,10 @@
         <iframe src="https://dungeonmail.substack.com/embed" width="480" height="320" style="border:1px solid #EEE; background:white;" frameborder="0" scrolling="no"></iframe>
         </div>
         <div id="controls">
-            <button onclick="keyPress({'which':37});">left</button>
-            <button onclick="keyPress({'which':38});">up</button>
-            <button onclick="keyPress({'which':39});">right</button>
-            <center><button onclick="keyPress({'which':40});">down</button></center>
+            <button class="dir" onclick="keyPress({'which':37});">left</button>
+            <button class="dir" onclick="keyPress({'which':38});">up</button>
+            <button class="dir" onclick="keyPress({'which':39});">right</button>
+            <center><button class="dir" onclick="keyPress({'which':40});">down</button></center>
         </div>
     </div>
 </body>
