@@ -193,6 +193,8 @@
                 console.log("ran out of neighbors");
             }
         } while (frontierCells.size > 0);
+
+		drawEverything();
     }
 
     function randomVisitedNeighbor(current, vCells){
