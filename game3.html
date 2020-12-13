@@ -1,0 +1,37 @@
+<html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #html5canvas {
+            width:800;
+            height:600;
+        }
+
+        #subscribe {
+            display:none;
+            width:500px;
+            float:left;
+        }
+        #controls {
+            float:right;
+        }
+        .dir {
+            touch-action:manipulation;
+        }
+    </style>
+    <script src="js/game3.js"></script>
+    </head>
+<body>
+    <div id="html5canvas">
+        <canvas id="game" width="800" height="600"></canvas>
+        <div id="subscribe">
+        </div>
+        <div id="controls">
+            <button class="dir" onclick="keyPress({'which':37});">left</button>
+            <button class="dir" onclick="keyPress({'which':38});">up</button>
+            <button class="dir" onclick="keyPress({'which':39});">right</button>
+            <center><button class="dir" onclick="keyPress({'which':40});">down</button></center>
+        </div>
+    </div>
+</body>
+</html>
