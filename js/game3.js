@@ -31,6 +31,8 @@
     let roomsPlacedCount = 0;
     let currentCell = {};
     let hasWon = false;
+	let score = 0;
+	let totalGold = 0;
     
     const cellSize = 20;
     const playerSize = cellSize - 6;
@@ -62,7 +64,6 @@
     }
 
     function makeLevel(){
-
         for(let i=0;i<columns;i++){
             let row = [];
             gx = i * cellSize;
@@ -125,10 +126,10 @@
         addDoors();
 
         //places the player in a room and lights it up
-        placePlayer();
+        addPlayer();
 
         //places some gold in every room
-        placeGold();
+        addGold();
     }
 
     function placeRoom(){
@@ -139,29 +140,29 @@
         if (randomPoint % 2 == 0){
             return false;
         }
+
         //Does room fit on map?
         if((randomPoint[0] + randomWidth - 1 < columns) && 
             (randomPoint[1] + randomHeight - 1 < rows)){
 
             //Does it overlap with any other room?
-
             topLeft = randomPoint;
             bottomRight = [randomPoint[0]+randomWidth - 1, randomPoint[1] + randomHeight - 1];
             
             for (let i=0;i<rooms.length;i++){
-                if (rectanglesOverlap(topLeft, bottomRight, rooms[i].topLeft(), rooms[i].bottomRight())){
+                let roomTestTL = rooms[i].topLeft();
+                let roomTestBR = rooms[i].bottomRight();
+
+                if (rectanglesOverlap(topLeft, bottomRight, [roomTestTL.x, roomTestTL.y], [roomTestBR.x, roomTestBR.y])){
                     return false;
                 }
             }
 
             //Add this room to our room list.
-            //rooms.push([topLeft, bottomRight]);
             newRoom = new room(topLeft[0], topLeft[1], randomWidth, randomHeight);
-            console.log("fit room");
-            console.log(newRoom);
             rooms.push(newRoom);
 
-            //Create the room in our cells.
+            //Assign room in our cells.
             for(let i=randomPoint[0];i<randomPoint[0] + randomWidth;i++){
                 for(let j=randomPoint[1];j<randomPoint[1] + randomHeight;j++){
                     cells[i][j].type = 'room';
@@ -170,7 +171,6 @@
             }
             return true;
         }
-
         return false;
     }
 
@@ -195,12 +195,13 @@
         floodAlgo();
     }
 
-    function trimCorridors(){
-        //do x rounds of triming or until there aren't any to trim
-        //find any rooms with three walls and remove them
-        //unlink joining wall
-        //change type to ''
 
+	/* Too many corridors leading to nowhere would
+	 * be a bummer so let's find any cell with only
+	 * one linked path and remove it.
+	 *
+	 */
+    function trimCorridors(){
         for(let k=0;k<corridorTrimmingRounds;k++){
             for(let i=0;i<columns;i++){
                 for(let j=0;j<rows;j++){
@@ -230,28 +231,41 @@
                         thisCell.link(neighbors[k]);
                         neighbors[k].link(thisCell);
                         doorsPlaced++;
+						rooms[i].hasDoors = true;
                     }
                 }
             }
         }
     }
 
-    function placePlayer(){
+	/* We don't want to place the player
+	 * in a room that doesn't have a door
+	 */
+    function addPlayer(){
         let placedPlayer = false;
         let roomAttempt = 0;
         while(!placedPlayer){
             let tryRoom = rooms[roomAttempt];
-            let startingCell = cells[tryRoom.x][tryRoom.y];
-            currentCell = startingCell;
-            currentCell.isLit = true;
-            placedPlayer = true;
-            roomAttempt++;
+			if (tryRoom.hasDoors){
+				let startingCell = cells[tryRoom.x][tryRoom.y];
+				currentCell = startingCell;
+				currentCell.room.lightRoom();
+				placedPlayer = true;
+			}
+			roomAttempt++;
         }
     }
 
-    function placeGold(){
-
-
+	/*
+	 * Only drop gold into rooms that have doors.
+	 */
+    function addGold(){
+		for(let i=0;i<rooms.length;i++){
+			if (rooms[i].hasDoors){
+				rooms[i].dropGold();
+				totalGold++;
+			}
+		}
     }
 
 
@@ -298,6 +312,7 @@
         this.roomId = -1;
         this.isEdge = false;
         this.isLit = false;
+		this.hasGold = false;
 
         this.draw = function(){
             if (!this.isLit){
@@ -310,6 +325,11 @@
                     canvasContext.fillStyle = 'pink';
                     canvasContext.fillRect(this.x, this.y, cellSize, cellSize);
                 }*/
+				if (this.hasGold){
+					canvasContext.fillStyle = 'gold';
+					//canvasContext.fillRect(this.x + cellSize / 2, this.y + cellSize / 2, cellSize/4, cellSize/4);
+					canvasContext.fillRect(this.x + cellSize/2, this.y + cellSize/2, cellSize/4, cellSize/4);
+				}
             }else if(this.type == ''){
                 canvasContext.fillStyle = emptySpaceColor;
                 canvasContext.fillRect(this.x, this.y, cellSize, cellSize);
@@ -427,6 +447,20 @@
 
             return allPoints;
         }
+
+		this.lightRoom = function(){
+			for(let i=this.x;i<this.x+this.width;i++){
+				for(let j=this.y;j<this.y+this.height;j++){
+					cells[i][j].isLit = true;
+				}
+			}
+		}
+
+		this.dropGold = function(){
+			let randomX = Math.floor(Math.random() * this.width);
+			let randomY = Math.floor(Math.random() * this.height);
+			cells[this.x + randomX][this.y + randomY].hasGold = true;
+		}
     }
 
     function floodAlgo(){
@@ -508,15 +542,14 @@
         }
 
         if (currentCell.type == 'room'){
-            for (let i=0;i<cells.length;i++){
-                for (let j=0;j<cells[i].length;j++){
-                    if(currentCell.roomId > -1 && currentCell.roomId == cells[i][j].roomId){
-                        cells[i][j].isLit = true;
-                    }
-                }
-            }
-
+			currentCell.room.lightRoom();
         }
+
+		if (currentCell.hasGold){
+			currentCell.hasGold = false;
+			score+=1;
+			updateScore();
+		}
     }
 
     function canMoveToCell(from, direction){
@@ -543,6 +576,11 @@
         return aCells;
 
     }
+
+	function updateScore(){
+		scoreDiv = document.getElementById('score');
+		scoreDiv.innerHTML = "Score: " + score + '/4';
+	}
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
