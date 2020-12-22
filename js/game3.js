@@ -580,6 +580,10 @@
 	function updateScore(){
 		scoreDiv = document.getElementById('score');
 		scoreDiv.innerHTML = "Score: " + score + '/4';
+		if(score > 3){
+			let success = document.getElementById("subscribe");
+			success.style.display = "block";
+		}
 	}
 
     function shuffleArray(array) {
