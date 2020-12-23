@@ -7,7 +7,6 @@
 	let buildings = [];
 	let crash = false;
 	let isStalling = false;
-	let abs = 0;
 	let smokes = [];
 	let smoking = false;
 
@@ -23,7 +22,6 @@
         canvas = document.getElementById('game');
         ctx = canvas.getContext('2d');
 
-        //document.addEventListener('keypress', keyPress);
         document.addEventListener('keydown', keyPress);
 
 		setUp();
@@ -68,6 +66,7 @@
 				degrees += 1;
 			}
 
+			//Break out of the stall if you're low enough and pointed down
 			if((newY > 50) && ((degrees <= 180) || (degrees <= 0)) ){
 				isStalling = false;
 			}
@@ -79,11 +78,7 @@
 		}
 
 		if(smoking){
-			//if((smokes.length > 0) && ((timeStamp - smokes[smokes.length - 1].timeStamp) > 1)){
-				smokes.push(new smoke(oldX, oldY, timeStamp));
-			//}else{
-			//	smokes.push(new smoke(oldX, oldY, timeStamp));
-			//}
+			smokes.push(new smoke(oldX, oldY, timeStamp));
 		}
 
         newX = oldX + (currentSpeed * Math.cos(degrees * Math.PI / 180));
@@ -93,6 +88,7 @@
 
 		currentSpeed = speed * newY/canvas.height;
 
+		//Bloop
 		if (newX >= canvas.width){
 			oldX = 0;
 		}
@@ -100,6 +96,7 @@
 			oldX = canvas.width;
 		}
 
+		//Don't crash
 		if(planeOverlapsWithBuilding(newX, newY, planeWidth, planeHeight)){
 			crash = true;
 		}
@@ -113,6 +110,7 @@
 				let diff = timeStamp - smokes[i].timeStamp;
 				let s = smokes[i];
 
+				//This could be better.
 				if(diff < 5000){
 					s.smokeLevel = 1;
 				}else if (diff < 9000){
@@ -129,9 +127,11 @@
 			}
 		}
 
+		//Loop loop loop
 		window.requestAnimationFrame(gameLoop);
 	}
 
+	//Too fancy
 	function planeOverlapsWithBuilding(x, y, width, height){
 		let topLeft1 = [x, y];
 		let bottomRight1 = [x + width - 1, y + height - 1];
@@ -157,11 +157,14 @@
 
         ctx.fillStyle = '#addfff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 		for(let i=0;i<buildings.length;i++){
 			let b = buildings[i];
 			ctx.fillStyle = b.color;
 			ctx.fillRect(b.x, b.y, b.width, b.height);
 		}
+
+		//This is wild.
         ctx.fillStyle = 'white';
         ctx.save();
 		translatedNewX = newX + (planeWidth / 2);
@@ -172,21 +175,15 @@
         ctx.fillRect(newX, newY, planeWidth, planeHeight);
         ctx.restore();
 
+		//Draw some smoke
 		smokes.forEach(function(s){
 			ctx.fillStyle = smokeLevels[s.smokeLevel];
 			ctx.fillRect(s.x, s.y, 5, 5);
 		});
-
-		/*
-		ctx.fillStyle = 'black';
-		ctx.fontStyle = "40px Helvetica";
-		ctx.fillText(degrees, 10, 10);
-		ctx.fillText(abs, 10, 30);
-		ctx.fillText(isStalling, 10, 60);
-		*/
     }
 
     function keyPress(evt){
+		//Block if stalling
 		if(isStalling){
 			return;
 		}
