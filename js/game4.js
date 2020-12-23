@@ -10,9 +10,6 @@
 	let smokes = [];
 	let smoking = false;
 
-	let newTs = 0;
-	let oldTs = 0;
-
 	const planeWidth = 20;
 	const planeHeight = 6;
 	const speed = 7;
@@ -61,10 +58,6 @@
 	function gameLoop(timeStamp){
 		draw();
 
-		//Smooth out movement depending on update speed.
-		secondsPassed = (timeStamp - oldTs) / 1000;
-		oldTs = timeStamp;
-
 		//If in a stall turn in the appropriate direction
 		if(isStalling){
 			if(((degrees > 90) && (degrees < 270)) || ((degrees <= -90) && (degrees > -270))){
@@ -88,8 +81,8 @@
 			smokes.push(new smoke(oldX, oldY, timeStamp));
 		}
 
-        newX = (oldX + (currentSpeed * Math.cos(degrees * Math.PI / 180))) * (secondsPassed);
-        newY = (oldY + (currentSpeed * Math.sin(degrees * Math.PI / 180))) * (secondsPassed);
+        newX = (oldX + (currentSpeed * Math.cos(degrees * Math.PI / 180)));
+        newY = (oldY + (currentSpeed * Math.sin(degrees * Math.PI / 180)));
         oldX = newX;
         oldY = newY;
 
