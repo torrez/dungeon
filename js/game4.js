@@ -1,65 +1,211 @@
     let canvas;
     let canvasContext;
-    let test = 0;
-    let oldX=oldY=100;
-    
-    
-    let degrees = 45;
-    const framesPerSecond = 30;
-    const keepRunning = true;
-    const r=5;
+    let oldX = newX = 20;
+	let oldY = newY = 500;
+    let degrees = 0;
+	let currentSpeed = 5;
+	let buildings = [];
+	let crash = false;
+	let isStalling = false;
+	let abs = 0;
+	let smokes = [];
+	let smoking = false;
+
+	const planeWidth = 20;
+	const planeHeight = 6;
+	const speed = 7;
+	const maxBuildingWidth = 40;
+	const maxBuildingHeight = 60;
+	const buildingColors = ['#ccc', '#ddd', '#aaa', '#c6c6c6', '#adadad'];
+	const smokeLevels = ['#aaa', '#bbb', '#ccc', '#ddd', '#eee', '#fff'];
 
     window.onload = function(){
         canvas = document.getElementById('game');
         ctx = canvas.getContext('2d');
 
-        document.addEventListener('keypress', keyPress);
+        //document.addEventListener('keypress', keyPress);
         document.addEventListener('keydown', keyPress);
 
-
-        setInterval(game, 1000/framesPerSecond);
+		setUp();
+		window.requestAnimationFrame(gameLoop);
     }
 
+	let building = function(x, y, width, height, color){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.color = color;
+	}
 
-    function game(){
-        ctx.fillStyle = 'pink';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+	let smoke = function(x, y, timeStamp){
+		this.x = x;
+		this.y = y;
+		this.timeStamp = timeStamp;
+		this.smokeLevel = 0;
+	}
 
+	function setUp(){
+		let nextX = 0;
+		while(nextX <= canvas.width){
+			let buildingWidth = Math.floor(Math.random() * maxBuildingWidth + 2);
+			let buildingHeight = Math.floor(Math.random() * maxBuildingHeight + 2);
+			let buildingColor = buildingColors[Math.floor(Math.random() * buildingColors.length)];
+			let b = new building(nextX, canvas.height - buildingHeight, buildingWidth, buildingHeight, buildingColor);
+			buildings.push(b);
+			nextX += buildingWidth;
+		}
+	}
 
-        let newX = oldX + (r * Math.cos(degrees * Math.PI / 180));
-        let newY = oldY + (r * Math.sin(degrees * Math.PI / 180));
+	function gameLoop(timeStamp){
+		draw();
 
-        ctx.fillStyle = 'black';
-        ctx.font = '12px Helvetica';
-        ctx.fillText(test, newX, newY);
+		//If in a stall turn in the appropriate direction
+		if(isStalling){
+			if(((degrees > 90) && (degrees < 270)) || ((degrees <= -90) && (degrees > -270))){
+				degrees -= 1;
+			}else if((degrees >= -90) || (degrees > 270)){
+				degrees += 1;
+			}
+
+			if((newY > 50) && ((degrees <= 180) || (degrees <= 0)) ){
+				isStalling = false;
+			}
+		}
+
+		//Don't go farther than 360 either way
+		if(Math.abs(degrees) > 360){
+			degrees = 0;
+		}
+
+		if(smoking){
+			//if((smokes.length > 0) && ((timeStamp - smokes[smokes.length - 1].timeStamp) > 1)){
+				smokes.push(new smoke(oldX, oldY, timeStamp));
+			//}else{
+			//	smokes.push(new smoke(oldX, oldY, timeStamp));
+			//}
+		}
+
+        newX = oldX + (currentSpeed * Math.cos(degrees * Math.PI / 180));
+        newY = oldY + (currentSpeed * Math.sin(degrees * Math.PI / 180));
         oldX = newX;
         oldY = newY;
-        test++;
 
-        /*
+		currentSpeed = speed * newY/canvas.height;
+
+		if (newX >= canvas.width){
+			oldX = 0;
+		}
+		if (newX <= 0){
+			oldX = canvas.width;
+		}
+
+		if(planeOverlapsWithBuilding(newX, newY, planeWidth, planeHeight)){
+			crash = true;
+		}
+
+		if(newY < 50){
+			isStalling = true;
+		}
+
+		for(let i=0;i<smokes.length;i++){
+			if (smokes[i] != null){
+				let diff = timeStamp - smokes[i].timeStamp;
+				let s = smokes[i];
+
+				if(diff < 5000){
+					s.smokeLevel = 1;
+				}else if (diff < 9000){
+					s.smokeLevel = 2;
+				} else if (diff < 12000){
+					s.smokeLevel = 3;
+				}else if (diff < 15000){
+					s.smokeLevel = 4;
+				}else if (diff < 20000){
+					s.smokeLevel = 5;
+				}else{
+					delete smokes[i];
+				}
+			}
+		}
+
+		window.requestAnimationFrame(gameLoop);
+	}
+
+	function planeOverlapsWithBuilding(x, y, width, height){
+		let topLeft1 = [x, y];
+		let bottomRight1 = [x + width - 1, y + height - 1];
+		for (let i=0;i<buildings.length;i++){
+			let b = buildings[i];
+			let topLeft2 = [b.x, b.y];
+			let bottomRight2 = [b.x + width - 1, b.y + height - 1];
+
+			if (topLeft1[0] > bottomRight2[0] || topLeft2[0] > bottomRight1[0]) {
+				continue; 
+			}else if (topLeft1[1] > bottomRight2[1] || topLeft2[1] > bottomRight1[1]) {
+				continue;
+			}
+			return true;
+		}
+		return false;
+	}
+
+    function draw(){
+		if (crash){
+			return;
+		}
+
+        ctx.fillStyle = '#addfff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+		for(let i=0;i<buildings.length;i++){
+			let b = buildings[i];
+			ctx.fillStyle = b.color;
+			ctx.fillRect(b.x, b.y, b.width, b.height);
+		}
+        ctx.fillStyle = 'white';
         ctx.save();
-        ctx.translate(50, 50);
-        if(test > 360){
-            test = 0;
-        }
-        ctx.rotate(test * Math.PI / 180);
-        ctx.fillStyle = 'black';
-        ctx.font = '12px Helvetica';
-        ctx.fillText(test, 0, 0);
-        //ctx.draw //your drawing function
-        ctx.translate(-50, -50);
+		translatedNewX = newX + (planeWidth / 2);
+		translatedNewY = newY + (planeHeight / 2);
+        ctx.translate(translatedNewX, translatedNewY);
+        ctx.rotate(degrees * Math.PI / 180);
+        ctx.translate(-1 * translatedNewX , -1 * translatedNewY);
+        ctx.fillRect(newX, newY, planeWidth, planeHeight);
         ctx.restore();
-        */
+
+		smokes.forEach(function(s){
+			ctx.fillStyle = smokeLevels[s.smokeLevel];
+			ctx.fillRect(s.x, s.y, 5, 5);
+		});
+
+		/*
+		ctx.fillStyle = 'black';
+		ctx.fontStyle = "40px Helvetica";
+		ctx.fillText(degrees, 10, 10);
+		ctx.fillText(abs, 10, 30);
+		ctx.fillText(isStalling, 10, 60);
+		*/
     }
 
     function keyPress(evt){
+		if(isStalling){
+			return;
+		}
+
         switch(evt.which){
             case 38:	
             case 119:
-                degrees+=5;
+                degrees+=9;
                 break;
             case 40:
             case 115:
-                degrees-=5;
+                degrees-=9;
+				break;
+			case 32:
+				if(smoking){
+					smoking = false;
+				}else{
+					smoking = true;
+				}
         }
+
     }
