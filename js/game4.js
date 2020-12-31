@@ -9,6 +9,7 @@
 	let isStalling = false;
 	let smokes = [];
 	let smoking = false;
+	let keys = [];
 
 	const planeWidth = 20;
 	const planeHeight = 6;
@@ -22,11 +23,22 @@
         canvas = document.getElementById('game');
         ctx = canvas.getContext('2d');
 
-        document.addEventListener('keydown', keyPress);
-
 		setUp();
 		window.requestAnimationFrame(gameLoop);
     }
+
+    document.addEventListener("keydown", function (e) {
+		if(isStalling){
+			return;
+		}
+        keys[e.keyCode] = true;
+    });
+    document.addEventListener("keyup", function (e) {
+		if(isStalling){
+			return;
+		}
+        keys[e.keyCode] = false;
+    });
 
 	let building = function(x, y, width, height, color){
 		this.x = x;
@@ -57,6 +69,23 @@
 
 	function gameLoop(timeStamp){
 		draw();
+
+        if(keys[38] || keys[119]){
+                degrees+=2;
+		}
+
+        if(keys[40] || keys[115]){
+                degrees-=2;
+		}
+		if(keys[32]){
+			if(smoking){
+				smoking = false;
+			}else{
+				smoking = true;
+			}
+        }
+
+
 
 		//If in a stall turn in the appropriate direction
 		if(isStalling){
@@ -182,27 +211,3 @@
 		});
     }
 
-    function keyPress(evt){
-		//Block if stalling
-		if(isStalling){
-			return;
-		}
-
-        switch(evt.which){
-            case 38:	
-            case 119:
-                degrees+=9;
-                break;
-            case 40:
-            case 115:
-                degrees-=9;
-				break;
-			case 32:
-				if(smoking){
-					smoking = false;
-				}else{
-					smoking = true;
-				}
-        }
-
-    }

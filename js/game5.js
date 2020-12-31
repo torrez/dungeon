@@ -13,12 +13,14 @@
     let bubbles = [];
     let previousDirection = 'right';
     let augmentedX = 0;
+	let bubblesToAdd = 0;
     
     const scrollSpeed = 10;
     const backgroundColor1 = 'blue';
     const backgroundColor2 = 'darkblue';
     const playerSize = 20;
-    const bubbleSize = 8;
+    const bubbleSize = 3;
+	const bubbleCount = 3
 
 
     function init(){
@@ -48,7 +50,6 @@
     window.onload = init;
 
     function setup(){
-        createLevel();
         drawEverything();
     }
 
@@ -58,7 +59,9 @@
         if(keys[37] || keys[97]){
             movePlayer('left');
             if(previousDirection != 'left'){
-                makeBubbles(playerLocation);
+				if (bubblesToAdd < 5){
+					bubblesToAdd += 1;
+				}
             }
             previousDirection = 'left';
         }
@@ -68,7 +71,9 @@
         if(keys[39] || keys[100]){
             movePlayer('right');
             if(previousDirection != 'right'){
-                makeBubbles(playerLocation);
+				if (bubblesToAdd < 5){
+					bubblesToAdd += 1;
+				}
             }
             previousDirection = 'right';
         }
@@ -79,20 +84,26 @@
         if(previousTs > 0 && playerLocation[1] < canvasHeight - playerSize){
             playerLocation[1] = playerLocation[1] + ((ts - previousTs) * 1/50);
         }
-        previousTs = ts;
 
-		bubbles.forEach(function(s){
-            s.y -= 3;
-		});
+		if(bubblesToAdd > 0){
+			bubbles.push(new Bubble(augmentedX + playerLocation[0], playerLocation[1]));
+			bubblesToAdd -= 1;
+		}
+
+		for(let i=0;i<bubbles.length;i++){
+			let b = bubbles[i];
+			if(b != null){
+				b.y -= (.05 * (ts - previousTs));
+				if (b.y < 0){
+					delete bubbles[i];
+				}
+			}
+		}	
+
+        previousTs = ts;
        
-        debug();
 		window.requestAnimationFrame(gameLoop);
     }
-
-    function debug(){
-        //console.log(augmentedX);
-    }
-
 
 
     function drawEverything(){
@@ -131,10 +142,11 @@
 		bubbles.forEach(function(b){
             if(b.x > augmentedX){
                 let translatedX = b.x - augmentedX;
-                console.log("TRANSLATED" + translatedX);
                 if (translatedX < canvasWidth){
-                    canvasContext.fillStyle = 'white';
-                    canvasContext.fillRect(translatedX, b.y, b.size, b.size);
+					canvasContext.beginPath();
+					canvasContext.arc(translatedX, b.y, b.size, 0, 2 * Math.PI);
+                    canvasContext.strokeStyle = 'white';
+					canvasContext.stroke();
                 }
             }
 		});
@@ -179,21 +191,10 @@
         }else if(bgx1 <= 0){
             bgx2 = bgx1 + canvasWidth;
         }
-        
-        
-        console.log({playerX:playerLocation[0], augmentedX:augmentedX});
     }
 
     let Bubble = function(x, y){
         this.x = x;
         this.y = y;
         this.size = Math.floor(Math.random() * bubbleSize) + 1;
-    }
-
-    function makeBubbles(loc){
-        bubbles.push(new Bubble(augmentedX + playerLocation[0], loc[1]));
-    }
-
-    function createLevel(){
-
     }
