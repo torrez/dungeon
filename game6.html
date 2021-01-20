@@ -1,0 +1,47 @@
+<html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #html5canvas {
+            width:800;
+            height:600;
+        }
+
+        #instructions {
+            width:500px;
+            float:left;
+        }
+        #controls {
+            float:right;
+        }
+        .dir {
+            touch-action:manipulation;
+        }
+        #subscribe {
+            width:200px;
+            display:none;
+        }
+        #torch-count {
+            font-weight:bold;
+        }
+    </style>
+    <script src="js/game6.js"></script>
+    </head>
+<body>
+    <div id="html5canvas">
+        <canvas id="game" width="800" height="600"></canvas>
+        <div id="instructions">
+            Press <strong>t</strong> to light your torch. You are trying to get to the <strong>exit</strong> (bottom right). You have <span id="torch-count">4 torches</span> remaining. Torches last 20 steps and then they need you to light a new one. Reload the page to start over. Good luck!
+        </div>
+        <div id="subscribe">
+            <!--<iframe src="https://dungeonmail.substack.com/embed" width="480" height="320" style="border:1px solid #EEE; background:white;" frameborder="0" scrolling="no"></iframe>-->
+        </div>
+        <div id="controls">
+            <button class="dir" onclick="keyPress({'which':37});">left</button>
+            <button class="dir" onclick="keyPress({'which':38});">up</button>
+            <button class="dir" onclick="keyPress({'which':39});">right</button>
+            <center><button class="dir" onclick="keyPress({'which':40});">down</button></center>
+        </div>
+    </div>
+</body>
+</html>
