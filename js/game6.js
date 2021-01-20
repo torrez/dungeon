@@ -73,6 +73,9 @@
     }
 
     function lightTorch(){
+        if(hasWon){
+            return;
+        }
         if (torches > 0){
             torches-=1;
             updateTorches();
@@ -101,9 +104,17 @@
         }
 
         stepsLeft-= 1;
-        console.log(stepsLeft);
 
         currentCell = currentCell[direction];
+
+        if(currentCell == rightBottomCorner){
+            hasWon = true;
+            var success = document.getElementById("subscribe");
+            success.style.display = "block";
+            mazeColor = 'white';
+            wallColor = 'black';
+            drawPlayer();
+        }
     }
 
     function createMaze(){
@@ -142,6 +153,7 @@
         //place player
         currentCell = cells[0][0];
         rightBottomCorner = cells[cells.length - 1][cells[0].length - 1];
+        currentCell = cells[cells.length - 2][cells[0].length - 2];
         primsAlgo();
     }
 
@@ -297,18 +309,18 @@
     function drawPlayer(){
         let centerOfCell = cellSize / 2;
         let centerOfPlayer = playerSize / 2;
-        ctx.fillStyle = playerColor;
+        if(hasWon){
+            ctx.fillStyle = 'green';
+        }else{
+            ctx.fillStyle = playerColor;
+        }
         ctx.fillRect(currentCell.x + centerOfCell - centerOfPlayer, currentCell.y + centerOfCell - centerOfPlayer, playerSize, playerSize);
     }
 
     function drawGoals(){
         ctx.fillStyle = 'white';
-        ctx.font = '11px Helvetica';
-        ctx.fillText("start", cells[0][0].x + cellSize/2 - 1, cells[0][0].y + cellSize/2 + 1);
-
-        ctx.fillStyle = 'white';
-        ctx.font = '11px Helvetica';
-        ctx.fillText("finish", rightBottomCorner.x + cellSize/2 - 1, rightBottomCorner.y + cellSize/2 + 1);
+        ctx.font = '12px Helvetica';
+        ctx.fillText("exit", rightBottomCorner.x + 3, rightBottomCorner.y + cellSize/2 + 1);
     }
 
     function randomVisitedNeighbor(current, vCells){

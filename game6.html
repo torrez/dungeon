@@ -31,16 +31,18 @@
     <div id="html5canvas">
         <canvas id="game" width="800" height="600"></canvas>
         <div id="instructions">
-            Press <strong>t</strong> to light your torch. You are trying to get to the <strong>exit</strong> (bottom right). You have <span id="torch-count">4 torches</span> remaining. Torches last 20 steps and then they need you to light a new one. Reload the page to start over. Good luck!
+            <p>Press <strong>t</strong> to light your torch. You are trying to get to the <strong>exit</strong> (bottom right). You have <span id="torch-count">4 torches</span> remaining. Torches last 20 steps and then they need to be re-lit. Reload the page to start over. Good luck!</p>
+            <p>Game idea by Aaron Miller. Thanks, Aaron!</p>
         </div>
         <div id="subscribe">
-            <!--<iframe src="https://dungeonmail.substack.com/embed" width="480" height="320" style="border:1px solid #EEE; background:white;" frameborder="0" scrolling="no"></iframe>-->
+            <iframe src="https://dungeonmail.substack.com/embed" width="480" height="320" style="border:1px solid #EEE; background:white;" frameborder="0" scrolling="no"></iframe>
         </div>
         <div id="controls">
             <button class="dir" onclick="keyPress({'which':37});">left</button>
             <button class="dir" onclick="keyPress({'which':38});">up</button>
             <button class="dir" onclick="keyPress({'which':39});">right</button>
             <center><button class="dir" onclick="keyPress({'which':40});">down</button></center>
+            <center><button class="dir" onclick="keyPress({'which':84});">t</button></center>
         </div>
     </div>
 </body>
