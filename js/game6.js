@@ -153,7 +153,7 @@
         //place player
         currentCell = cells[0][0];
         rightBottomCorner = cells[cells.length - 1][cells[0].length - 1];
-        currentCell = cells[cells.length - 2][cells[0].length - 2];
+        //currentCell = cells[cells.length - 2][cells[0].length - 2];
         primsAlgo();
     }
 
